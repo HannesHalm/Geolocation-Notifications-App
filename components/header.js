@@ -1,11 +1,12 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { globalStyles } from '../styles/global';
 
 
 export default function Header() {
     return (
         <View style={styles.header}>
-            <Text style={styles.title}>Home</Text>
+            <Text style={styles.title}>Reminders</Text>
         </View>
     )
 }

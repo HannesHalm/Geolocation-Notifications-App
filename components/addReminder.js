@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
+import { globalStyles } from '../styles/global';
 
 export default function AddReminder({ submitHandler }) {
     const [name, setName] = React.useState('');
@@ -11,7 +12,7 @@ export default function AddReminder({ submitHandler }) {
     return (
         <View>
             <TextInput 
-                style={styles.input}
+                style={globalStyles.input}
                 placeholder='new reminder'
                 onChangeText={changeHandler}
             />

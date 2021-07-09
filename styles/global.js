@@ -8,6 +8,7 @@ export const globalStyles = StyleSheet.create({
         //alignItems: 'center',
         //justifyContent: 'center',
       }, 
+      
       titleText: {
           //fontFamily: 'helvetica',
           fontSize: 18,
@@ -21,11 +22,21 @@ export const globalStyles = StyleSheet.create({
           padding: 8,
       },
       input: {
+        padding: 8,
         marginBottom: 10,
-        paddingHorizontal: 8,
-        paddingVertical: 6,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd'
+        borderWidth: 1,
+        borderRadius: 5, 
+        borderColor: '#ddd',
+        fontSize: 18,
+        justifyContent: 'flex-start',
+      },
+      modalToggle: {
+          padding: 8,
+          borderWidth: 0,
+          borderRadius: 10,
+          borderColor:  'lightgrey',
+          marginBottom: 16,
+          alignSelf: 'center',
       }
     
 });

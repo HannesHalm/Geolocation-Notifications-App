@@ -20,10 +20,14 @@ const styles = StyleSheet.create({
         padding: 16,
         marginTop: 16,
         borderColor: '#bbb',
-        borderWidth: 2,
+        borderWidth: 1,
         borderStyle: 'solid',
         borderRadius: 5,
-        flexDirection: 'row'
+        flexDirection: 'row',
+        shadowOffset: { width: 1, height: 1},
+        shadowOpacity: 0.7,
+        shadowColor: '#333',
+        shadowRadius: 3,
     }, 
     itemText: {
       color: '#888',

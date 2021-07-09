@@ -1,26 +1,28 @@
 import React from 'react';
 import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
 import { globalStyles } from '../styles/global';
+import { AntDesign } from '@expo/vector-icons';
+
 
 export default function ReminderSetup({ navigation }) {
     const [name, setName] = React.useState('');
 
-    const changeHandler = (val) => {
-        setName(val);
-    }
+    {/** 
+    const pressHandler = (key) => {
+        setReminder((prevReminder) => {
+          return prevReminder.filter(reminder => reminder.key != key);
+        })
+    } 
+    */}
     return(
-        <View>
-            <Text style={globalStyles.titleText}>Name</Text>
-            <TextInput 
-                style={globalStyles.input}
-                value={ navigation.getParam('name') }
-                //onChangeText={changeHandler}
-            />
-            <Text style={globalStyles.paragraph}>Info</Text>
-            <TextInput 
-                style={globalStyles.input}
-                value={ navigation.getParam('info') }
-                onChangeText={changeHandler}
+        <View style={globalStyles.container}>
+            <Text style={globalStyles.titleText}>{ navigation.getParam('name') }</Text>
+            <Text style={globalStyles.paragraph}>{ navigation.getParam('info') }</Text>
+            <Text style={globalStyles.paragraph}>{ navigation.getParam('coords')}</Text>
+            <AntDesign 
+                name='delete'
+                size={32}
+                onPress={() => alert('Remove item')}
             />
         </View>
     );

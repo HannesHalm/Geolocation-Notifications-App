@@ -1,13 +1,15 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View, FlatList, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Alert, TouchableWithoutFeedback, Keyboard, Modal, TouchableOpacity } from 'react-native';
 import Header from '../components/header';
 import ReminderItem from '../components/reminderItem';
 import AddReminder from '../components/addReminder';
 import { globalStyles } from '../styles/global';
+import { AntDesign } from '@expo/vector-icons';
 
 
 export default function Home({ navigation }) {
+  const [modalOpen, setModalOpen] = React.useState(false);
   const [reminders, setReminder] = React.useState([
     { name : 'Mataffär', key: '1', coords: '1.90', info: 'buy milk'},
     { name : 'Arbetsplats', key: '2', coords: '1.90', info: 'make coffee'},
@@ -15,90 +17,82 @@ export default function Home({ navigation }) {
     { name : 'Hem', key: '4', coords: '1.90', info: 'Ställ ut soptunnor'},
   ])
 
+  const addReminder = (reminder) => {
+    reminder.key = Math.random().toString();
+    setReminder((currentReminders) => {
+        return [reminder, ...currentReminders];
+    });
+    setModalOpen(false);
+  }
+
   const pressHandler = (item) => {
     navigation.navigate('ReminderSetup', item);
-    //navigation.push('ReminderSetup');
   }
 
-  {/**
-    Remove pressed item use later
-const pressHandler = (key) => {
-    setReminder((prevReminder) => {
-      return prevReminder.filter(reminder => reminder.key != key);
-    })
-  } 
-*/}
-
-  const submitHandler = (name) => {
-    if (name.length > 3) {
+  const removeHandler = (key) => {
       setReminder((prevReminder) => {
-        return [
-          // change later to proper key generation
-          { name: name, key: Math.random().toString() },
-          ...prevReminder
-        ];
+      return prevReminder.filter(reminder => reminder.key != key);
       })
-    }
-    else {
-      Alert.alert(
-        "Name too short",
-        "choose a longer name",
-        [
-          { text: "Understood", onPress: () => console.log("OK Pressed") }
-        ]
-      );
-    }
-  }
+  } 
 
   return (
-    <TouchableWithoutFeedback onPress={() => {
-      Keyboard.dismiss();
-      console.log('dismissed keyboard');
-    }}>
-      <View style={globalStyles.container}>
-        {/**Header */}
+    <View style={globalStyles.container}>
         {/*<Header />*/}
         <View style={styles.contents}>
           {/**Body */}
-          <AddReminder submitHandler={submitHandler}/>
+            <Modal visible={modalOpen} animationType='slide'>
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                    <View style={styles.modalContent}>
+                        <AntDesign 
+                            style={globalStyles.modalToggle}
+                            name='closecircle'
+                            size={32}
+                            onPress={() => setModalOpen(false)}
+                        />
+                        <AddReminder addReminder={addReminder} />
+                    </View>
+                </TouchableWithoutFeedback>
+                
+            </Modal>
            
-          <View style={styles.list}>
-            <FlatList
-              data ={reminders}
-              renderItem={({ item }) => (
-                <ReminderItem item={item} pressHandler={pressHandler}/>
-              )} 
-            />
-          </View>
+            
+            {/** 
+            <AddReminder submitHandler={submitHandler}/>
+            */}
 
+            <View style={styles.list}>
+                <FlatList
+                data ={reminders}
+                renderItem={({ item }) => (
+                    <ReminderItem item={item} pressHandler={pressHandler}/>
+                )} 
+                />
+            </View>
+            <AntDesign name='pluscircle'
+                style={globalStyles.modalToggle}
+                name='pluscircle'
+                size={32}
+                onPress={() => setModalOpen(true)}
+            />
         </View>
-      </View>
-    </TouchableWithoutFeedback>
-  );
+    </View>
+    
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    //alignItems: 'center',
-    //justifyContent: 'center',
-  }, 
   text: {
     color: '#888',
     fontSize: 18,
     marginHorizontal: 15,
   }, 
-  item: {
-    marginTop: 24,
-    backgroundColor: 'lavenderblush',
-    padding: 30,
-    fontSize: 24,
-  },
   contents: {
     flex: 1,
     paddingTop: 40,
     paddingHorizontal: 16
+  },
+  modalContent: {
+    flex: 1,
   },
   list: {
     flex: 1,

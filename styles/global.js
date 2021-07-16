@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 
 export const globalStyles = StyleSheet.create({
     container: {
@@ -8,7 +8,6 @@ export const globalStyles = StyleSheet.create({
         //alignItems: 'center',
         //justifyContent: 'center',
       }, 
-      
       titleText: {
           //fontFamily: 'helvetica',
           fontSize: 18,
@@ -37,6 +36,12 @@ export const globalStyles = StyleSheet.create({
           borderColor:  'lightgrey',
           marginBottom: 16,
           alignSelf: 'center',
+      },
+      map: {
+        width: '100%',
+        height: '50%', 
+        flexGrow: 1
+          
       }
     
 });

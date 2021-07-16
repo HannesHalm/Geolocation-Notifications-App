@@ -1,14 +1,16 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View, FlatList, Alert, TouchableWithoutFeedback, Keyboard, Modal, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Button, TouchableWithoutFeedback, Keyboard, Modal, TouchableOpacity } from 'react-native';
 import Header from '../components/header';
 import ReminderItem from '../components/reminderItem';
 import AddReminder from '../components/addReminder';
 import { globalStyles } from '../styles/global';
 import { AntDesign } from '@expo/vector-icons';
+import * as Location from 'expo-location';
 
 
 export default function Home({ navigation }) {
+  const [location, setLocation] = React.useState(null);
   const [modalOpen, setModalOpen] = React.useState(false);
   const [reminders, setReminder] = React.useState([
     { name : 'Mataffär', key: '1', coords: '1.90', info: 'buy milk'},
@@ -16,6 +18,29 @@ export default function Home({ navigation }) {
     { name : 'Gym', key: '3', coords: '1.90' , info: 'train cardio'},
     { name : 'Hem', key: '4', coords: '1.90', info: 'Ställ ut soptunnor'},
   ])
+  const [errorMsg, setErrorMsg] = React.useState(null);
+
+  React.useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      
+      setLocation(location);
+    })();
+  }, []);
+
+  let text = 'Waiting..';
+  if (errorMsg) {
+    text = errorMsg;
+  } else if (location) {
+    text = JSON.stringify(location);
+    
+  }
 
   const addReminder = (reminder) => {
     reminder.key = Math.random().toString();
@@ -34,6 +59,7 @@ export default function Home({ navigation }) {
       return prevReminder.filter(reminder => reminder.key != key);
       })
   } 
+
 
   return (
     <View style={globalStyles.container}>
@@ -68,6 +94,11 @@ export default function Home({ navigation }) {
                 )} 
                 />
             </View>
+            
+            <View style={globalStyles.container}>
+             <Text style={globalStyles.paragraph}>{text}</Text>
+            </View>
+
             <AntDesign name='pluscircle'
                 style={globalStyles.modalToggle}
                 name='pluscircle'

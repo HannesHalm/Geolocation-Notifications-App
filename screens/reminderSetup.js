@@ -18,7 +18,8 @@ export default function ReminderSetup({ navigation }) {
         <View style={globalStyles.container}>
             <Text style={globalStyles.titleText}>{ navigation.getParam('name') }</Text>
             <Text style={globalStyles.paragraph}>{ navigation.getParam('info') }</Text>
-            <Text style={globalStyles.paragraph}>{ navigation.getParam('coords')}</Text>
+            <Text style={globalStyles.paragraph}>{ navigation.getParam('latitude')}</Text>
+            <Text style={globalStyles.paragraph}>{ navigation.getParam('longitude')}</Text>
             <AntDesign 
                 name='delete'
                 size={32}

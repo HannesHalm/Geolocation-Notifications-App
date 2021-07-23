@@ -13,10 +13,10 @@ export default function Home({ navigation }) {
   const [location, setLocation] = React.useState(null);
   const [modalOpen, setModalOpen] = React.useState(false);
   const [reminders, setReminder] = React.useState([
-    { name : 'Mataffär', key: '1', coords: '1.90', info: 'buy milk'},
-    { name : 'Arbetsplats', key: '2', coords: '1.90', info: 'make coffee'},
-    { name : 'Gym', key: '3', coords: '1.90' , info: 'train cardio'},
-    { name : 'Hem', key: '4', coords: '1.90', info: 'Ställ ut soptunnor'},
+    { name : 'Mataffär', key: '1', latitude: 0, longitude: 1, info: 'buy milk'},
+    { name : 'Arbetsplats', key: '2', latitude: 0, longitude: 1, info: 'make coffee'},
+    { name : 'Gym', key: '3', latitude: 0, longitude: 1, info: 'train cardio'},
+    { name : 'Hem', key: '4', latitude: 0, longitude: 1, info: 'Ställ ut soptunnor'},
   ])
   const [errorMsg, setErrorMsg] = React.useState(null);
 
@@ -39,7 +39,6 @@ export default function Home({ navigation }) {
     text = errorMsg;
   } else if (location) {
     text = JSON.stringify(location);
-    
   }
 
   const addReminder = (reminder) => {
@@ -75,7 +74,7 @@ export default function Home({ navigation }) {
                             size={32}
                             onPress={() => setModalOpen(false)}
                         />
-                        <AddReminder addReminder={addReminder} />
+                        <AddReminder addReminder={addReminder} location={location}/>
                     </View>
                 </TouchableWithoutFeedback>
                 

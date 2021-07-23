@@ -2,43 +2,24 @@ import React from 'react';
 import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
 import { globalStyles } from '../styles/global';
 import { Formik } from 'formik';
-import MapView from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { AntDesign } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 
 
-export default function AddReminder({ addReminder }) {
-    const [location, setLocation] = React.useState({});
-    React.useEffect(() => {
-        (async () => {
-          let { status } = await Location.requestForegroundPermissionsAsync();
-          if (status !== 'granted') {
-            alert('Permission to access location was denied');
-            return;
-          }
+export default function AddReminder({ addReminder, location }) {
+    const [marker, setMarker] = React.useState({latitude: 0,
+                                                longitude: 0});
+
     
-          let location = await Location.getCurrentPositionAsync({});
-          let region = {
-            latitude: parseFloat(location.coords.latitude),
-            longitude: parseFloat(location.coords.longitude),
-            latitudeDelta: 5,
-            longitudeDelta: 5
-        };
-        await this.setState({
-            initialRegion: region
-        });
-           
-          
-        })();
-      }, []);
     return (
         <View style={globalStyles.container}>
             <Formik
-                initialValues={{ name: '', info: '', coords: '' }}
+                initialValues={{ name: '', info: '', latitude: '', longitude: '' }}
                 onSubmit={(values, actions) => {
                     actions.resetForm();
                     addReminder(values);
-                    console.log(JSON.stringify(location.coords.longitude))
+                    console.log(JSON.stringify(location));
                 }}
             >
                 {(props) => (
@@ -61,14 +42,30 @@ export default function AddReminder({ addReminder }) {
                         <TextInput 
                             style={globalStyles.input}
                             placeholder='Reminder Location'
-                            onChangeText={props.handleChange('coords')}
-                            value={props.values.coords}
+                            onChangeText={props.handleChange('latitude')}
+                            value={props.values.latitude}
                             
                         />
                         
                         <MapView style={globalStyles.map}
                             showsUserLocation={true}
-                        />
+                            initialRegion={{
+                                latitude: location.coords.latitude,
+                                longitude: location.coords.longitude,
+                                latitudeDelta: 0.0922,
+                                longitudeDelta: 0.0421,
+                            }}
+                            onPress={ (event) => setMarker(event.nativeEvent.coordinate) }
+                            
+                        >
+                            <Marker 
+                                coordinate={{ 
+                                    latitude: marker.latitude,
+                                    longitude: marker.longitude,
+                                }} 
+                            />
+                        </MapView>
+                        
                             
                         <Button title='Submit' color='brown' onPress={props.handleSubmit} />
                     </View>

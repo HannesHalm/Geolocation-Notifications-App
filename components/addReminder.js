@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
 import { globalStyles } from '../styles/global';
-import { Formik } from 'formik';
+import { Formik, setFieldValue } from 'formik';
 import MapView, { Marker } from 'react-native-maps';
 import { AntDesign } from '@expo/vector-icons';
 import * as Location from 'expo-location';
@@ -10,16 +10,23 @@ import * as Location from 'expo-location';
 export default function AddReminder({ addReminder, location }) {
     const [marker, setMarker] = React.useState({latitude: 0,
                                                 longitude: 0});
-
+    
+    const pressHandler = (event, props) => {
+        props.setFieldValue("latitude", event.nativeEvent.coordinate.latitude);
+        props.setFieldValue("longitude", event.nativeEvent.coordinate.longitude);
+        setMarker(event.nativeEvent.coordinate);
+        console.log("log", marker);
+    }
     
     return (
         <View style={globalStyles.container}>
             <Formik
-                initialValues={{ name: '', info: '', latitude: '', longitude: '' }}
+                initialValues={{ name: '', info: '', latitude: 0, longitude:  0}}
                 onSubmit={(values, actions) => {
                     actions.resetForm();
                     addReminder(values);
                     console.log(JSON.stringify(location));
+                    
                 }}
             >
                 {(props) => (
@@ -39,13 +46,7 @@ export default function AddReminder({ addReminder, location }) {
                             onChangeText={props.handleChange('info')}
                             value={props.values.info}
                         />
-                        <TextInput 
-                            style={globalStyles.input}
-                            placeholder='Reminder Location'
-                            onChangeText={props.handleChange('latitude')}
-                            value={props.values.latitude}
-                            
-                        />
+                       
                         
                         <MapView style={globalStyles.map}
                             showsUserLocation={true}
@@ -55,7 +56,7 @@ export default function AddReminder({ addReminder, location }) {
                                 latitudeDelta: 0.0922,
                                 longitudeDelta: 0.0421,
                             }}
-                            onPress={ (event) => setMarker(event.nativeEvent.coordinate) }
+                            onPress={ (event) => pressHandler(event, props) }
                             
                         >
                             <Marker 

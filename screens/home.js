@@ -7,7 +7,10 @@ import AddReminder from '../components/addReminder';
 import { globalStyles } from '../styles/global';
 import { AntDesign } from '@expo/vector-icons';
 import * as Location from 'expo-location';
+import * as TaskManager from 'expo-task-manager';
 
+const LOCATION_TASK_NAME = "background-location-task";
+const GEOFENCING_TASK_NAME = "background-geofencing-task";
 
 export default function Home({ navigation }) {
   const [location, setLocation] = React.useState(null);
@@ -20,19 +23,76 @@ export default function Home({ navigation }) {
   ])
   const [errorMsg, setErrorMsg] = React.useState(null);
 
+  const startWatchingPosition = async () => {
+    await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+      enableHighAccuracy: true,
+      distanceInterval: 2,
+      timeInterval: 5000
+    });
+
+    let location = await Location.watchPositionAsync(
+      {
+        accuracy: 5,
+        timeInterval: 5000,
+        banan: 10,
+        distanceInterval: 1,
+      }, 
+      locationUpdate => {
+        setLocation(locationUpdate);
+      });
+  }
+
+ 
+
   React.useEffect(() => {
     (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+      let { status } = await Location.requestBackgroundPermissionsAsync();
+
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied');
         return;
       }
-
-      let location = await Location.getCurrentPositionAsync({});
-      
-      setLocation(location);
+      else {
+        startWatchingPosition();
+        Location.startGeofencingAsync(GEOFENCING_TASK_NAME, [
+          {
+            latitude: 59.67509042266887, 
+            longitude: 16.588414348661903, 
+            radius: 2
+          }
+        ]);
+      }
     })();
   }, []);
+
+  TaskManager.defineTask(GEOFENCING_TASK_NAME, ({ data: { eventType, region }, error }) => {
+    console.log("hej Från GEOFENCE");
+    if (error) {
+      // check `error.message` for more details.
+
+      return;
+    }
+    if (eventType === Location.LocationGeofencingEventType.Enter) {
+      console.log("You've entered region:", region);
+      alert("success entry");
+    } else if (eventType === Location.LocationGeofencingEventType.Exit) {
+      console.log("You've left region:", region);
+      alert("success exit");
+    }
+  });
+     
+  TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
+    if (error) {
+      console.log(error);
+      return;
+    }
+    if (data) {
+      console.log(data);
+
+    }
+  });
+    
+
 
   let text = 'Waiting..';
   if (errorMsg) {
@@ -43,13 +103,20 @@ export default function Home({ navigation }) {
 
   const addReminder = (reminder) => {
     reminder.key = Math.random().toString();
+    console.log(reminder.name);
+    console.log(reminder.latitude);
+    console.log(reminder.longitude);
     setReminder((currentReminders) => {
         return [reminder, ...currentReminders];
     });
+
     setModalOpen(false);
   }
 
+
   const pressHandler = (item) => {
+    const region = reminders.map(a => a.latitude);
+    
     navigation.navigate('ReminderSetup', item);
   }
 

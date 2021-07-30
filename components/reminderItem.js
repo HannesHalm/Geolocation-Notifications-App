@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
     icon: {
         paddingTop: 4,
         marginLeft: 'auto',
-        fontSize: 16
+        fontSize: 16,
+        color: '#888'
     }
 })

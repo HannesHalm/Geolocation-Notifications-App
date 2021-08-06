@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
 import { globalStyles } from '../styles/global';
 import { Formik, setFieldValue } from 'formik';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Circle } from 'react-native-maps';
 import { AntDesign } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 
@@ -14,14 +14,15 @@ export default function AddReminder({ addReminder, location }) {
     const pressHandler = (event, props) => {
         props.setFieldValue("latitude", event.nativeEvent.coordinate.latitude);
         props.setFieldValue("longitude", event.nativeEvent.coordinate.longitude);
+        
+        // Weird error console.log(marker) is one press behind
         setMarker(event.nativeEvent.coordinate);
-        console.log("log", marker);
     }
     
     return (
         <View style={globalStyles.container}>
             <Formik
-                initialValues={{ name: '', info: '', latitude: 0, longitude:  0}}
+                initialValues={{ name: '', info: '', latitude: 0, longitude:  0, radius: '10'}}
                 onSubmit={(values, actions) => {
                     actions.resetForm();
                     addReminder(values);
@@ -46,18 +47,24 @@ export default function AddReminder({ addReminder, location }) {
                             onChangeText={props.handleChange('info')}
                             value={props.values.info}
                         />
+
+                        <TextInput 
+                            style={globalStyles.input}
+                            placeholder='Reminder Radius'
+                            keyboardType='numeric'
+                            onChangeText={props.handleChange('radius')}
+                            value={props.values.radius}
+                        />
                        
-                        
                         <MapView style={globalStyles.map}
                             showsUserLocation={true}
                             initialRegion={{
                                 latitude: location.coords.latitude,
                                 longitude: location.coords.longitude,
-                                latitudeDelta: 0.0922,
-                                longitudeDelta: 0.0421,
+                                latitudeDelta: 0.000922,
+                                longitudeDelta: 0.000421,
                             }}
                             onPress={ (event) => pressHandler(event, props) }
-                            
                         >
                             <Marker 
                                 coordinate={{ 
@@ -65,8 +72,19 @@ export default function AddReminder({ addReminder, location }) {
                                     longitude: marker.longitude,
                                 }} 
                             />
+                            <Circle 
+                                center={{ 
+                                    latitude: marker.latitude,
+                                    longitude: marker.longitude,
+                                }}
+                                // If field empty set radius to 0
+                                radius={isNaN(parseInt(props.values.radius)) ? 0 : parseInt(props.values.radius)}
+                                strokeWidth = { 1 }
+                                strokeColor = { '#1a66ff' }             
+                                fillColor = { 'rgba(230,238,255,0.5)' }
+
+                            />
                         </MapView>
-                        
                             
                         <Button title='Submit' color='brown' onPress={props.handleSubmit} />
                     </View>

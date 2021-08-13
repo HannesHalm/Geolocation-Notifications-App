@@ -20,7 +20,11 @@ export default function ReminderSetup({ route, navigation }) {
         
         <View style={globalStyles.container}>
             <Text style={globalStyles.titleText}>{ navigation.getParam('name') }</Text>
+            <Text style={globalStyles.subtitle}>{"On entry"}</Text>
             <Text style={globalStyles.paragraph}>{ navigation.getParam('info') }</Text>
+            
+            <Text style={globalStyles.subtitle}>{"On exit"}</Text>
+            <Text style={globalStyles.paragraph}>{ navigation.getParam('exitinfo') }</Text>
             <MapView style={globalStyles.map}
                 showsUserLocation={true}
                 region={{

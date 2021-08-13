@@ -10,6 +10,7 @@ import { AntDesign } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
 
 
 const LOCATION_TASK_NAME = "background-location-task";
@@ -18,47 +19,47 @@ const GEOFENCING_TASK_NAME = "background-geofencing-task";
 export default function Home({ navigation }) {
   const [location, setLocation] = React.useState(null);
   const [modalOpen, setModalOpen] = React.useState(false);
+  //const [reminders, setReminder] = React.useState([]);
   const [reminders, setReminder] = React.useState([
-    { name : 'Hörn', key: '1', latitude: 59.67493823789304, longitude: 16.589259244501587, radius: 20, info: 'buy milk'},
-    { name : 'Lekpark', key: '2', latitude: 59.67404018129062, longitude: 16.589239463210102, radius: 20, info: 'make coffee'},
-    { name : 'Gym', key: '3', latitude: 59.67, longitude: 16.587, radius: 50, info: 'train cardio'},
-    { name : 'Hem', key: '4', latitude: 59.67511615350818, longitude: 16.588357016444206, radius: 10, info: 'Ställ ut soptunnor'},
+    { name : 'Mataffär', key: '1', latitude: 59.67493823789304, longitude: 16.589259244501587, radius: 20, info: 'buy milk', exitinfo: ''},
+    { name : 'Arbetsplats', key: '2', latitude: 59.67404018129062, longitude: 16.589239463210102, radius: 20, info: 'make coffee', exitinfo: ''},
+    { name : 'Gym', key: '3', latitude: 59.67, longitude: 16.587, radius: 50, info: 'train cardio', exitinfo: ''},
+    { name : 'Hem', identifier: '4', key: '4', latitude: 59.67511615350818, longitude: 16.588357016444206, radius: 10, info: 'Ställ ut soptunnor', exitinfo: 'Dra ut strykjärnet'},
   ]);
   const [errorMsg, setErrorMsg] = React.useState(null);
+  const [expoPushToken, setExpoPushToken] = React.useState(null);
 
   // Fetch location updates
   const startWatchingPosition = async () => {
     //Background location 
-    await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
-      enableHighAccuracy: true,
-      accuracy: Location.LocationAccuracy.Highest,
-      distanceInterval: 0,
-      timeInterval: 3000,
-      foregroundService: {
-        notificationTitle: "Kamrat",
-        notificationBody: "Tracking location for reminders"
+    try {
+      await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+        enableHighAccuracy: true,
+        accuracy: Location.LocationAccuracy.Highest,
+        distanceInterval: 0,
+        timeInterval: 1500,
+        foregroundService: {
+          notificationTitle: "Kamrat",
+          notificationBody: "Tracking location for reminders"
+        }
+      }); } catch(e) {
+        console.log(e);
       }
-    });
 
     //Foreground location updates state for MapView in add reminder
     let location = await Location.watchPositionAsync(
       {
         accuracy: Location.LocationAccuracy.Highest,
-        timeInterval: 3000,
+        timeInterval: 1500,
         distanceInterval: 0,
       }, 
       locationUpdate => {
         setLocation(locationUpdate);
-        
       });
   }
 
   // Start or update geofence with current reminders
-  const initalizeGeofence = async () => {
-    await Location.startGeofencingAsync(GEOFENCING_TASK_NAME, 
-        reminders
-    );
-  }
+  
 
   /*
   const registerForPushNotificationsAsync = async () => {
@@ -68,8 +69,8 @@ export default function Home({ navigation }) {
       return;
     }
     const token = (await Notifications.getExpoPushTokenAsync()).data;
-    console.log(token);
-    this.setState({ expoPushToken: token });
+
+    setExpoPushToken(token);
     
   
     if (Platform.OS === 'android') {
@@ -94,40 +95,58 @@ export default function Home({ navigation }) {
         return;
       }
       else {
+        console.log("App started with permissions");
         startWatchingPosition();
         initalizeGeofence();
+        
         //registerForPushNotificationsAsync();
       }
     })();
   }, []);
+  
+  const initalizeGeofence = async () => {
+    try {
+      await Location.startGeofencingAsync(GEOFENCING_TASK_NAME, 
+          reminders
+      );
+    } catch(e) {
+      console.log(e);
+    }
+  }
 
   TaskManager.defineTask(GEOFENCING_TASK_NAME, ({ data: { eventType, region }, error }) => {
     if (error) {
       // check `error.message` for more details.
+      console.log(error.message);
       return;
     }
     // Find reminder object to access additional information
     let reminderTriggered = reminders.find(o => o.latitude === region.latitude && o.longitude === region.longitude);
 
     if (eventType === Location.LocationGeofencingEventType.Enter) {
+      // Replace with Push-Notification in future
       console.log("You've entered:", reminderTriggered.name, region);
-      Alert.alert(
-        "Entered " + reminderTriggered.name,
-        reminderTriggered.info,
-        [
-          { text: "OK", onPress: () => console.log("OK Pressed") }
-        ]
-      );
-    } else if (eventType === Location.LocationGeofencingEventType.Exit) {
-      console.log(reminderTriggered.name);
+      if (reminderTriggered.info !== '') {
+        Alert.alert(
+          "Entered " + reminderTriggered.name,
+          reminderTriggered.info,
+          [
+            { text: "OK", onPress: () => console.log("OK Pressed") }
+          ]
+        );
+      }
+    } 
+    else if (eventType === Location.LocationGeofencingEventType.Exit) {
       console.log("You've left:", reminderTriggered.name, region);
-      Alert.alert(
-        "Exited " + reminderTriggered.name,
-        reminderTriggered.info,
-        [
-          { text: "OK", onPress: () => console.log("OK Pressed") }
-        ]
-      );
+      if (reminderTriggered.exitinfo !== '') {
+        Alert.alert(
+          "Exited " + reminderTriggered.name,
+          reminderTriggered.exitinfo,
+          [
+            { text: "OK", onPress: () => console.log("OK Pressed") }
+          ]
+        );
+      }
     }
   });
   
@@ -139,8 +158,6 @@ export default function Home({ navigation }) {
     }
     if (data) {
       console.log(AppState.currentState);
-      //setLocation(data[0]);
-      //console.log("location", location);
     }
   });
     
@@ -153,19 +170,17 @@ export default function Home({ navigation }) {
   }
 
   const addReminder = (reminder) => {
-    reminder.key = Math.random().toString();
-    console.log(reminder.name);
-    console.log(reminder.latitude);
-    console.log(reminder.longitude);
-    console.log(reminder.radius);
+    let keyId = Math.random().toString();
+    reminder.key = keyId;
     reminder.radius = parseInt(reminder.radius);
     setReminder((currentReminders) => {
         return [reminder, ...currentReminders];
     });
 
     // Start geofence with new reminder
-    initalizeGeofence();
+
     setModalOpen(false);
+    initalizeGeofence();  
   }
 
   // Navigate to individual reminder screen
@@ -173,12 +188,16 @@ export default function Home({ navigation }) {
     navigation.navigate('ReminderSetup', item);
   }
 
+  // Remove item from reminders with given key
   const removeHandler = (key) => {
-      setReminder((prevReminder) => {
+    setReminder((prevReminder) => {
       return prevReminder.filter(reminder => reminder.key != key);
-      });
+    });
   } 
 
+  const isNull = (object) => {
+    return object === null;
+  }
 
   return (
     <View style={globalStyles.container}>
@@ -213,16 +232,13 @@ export default function Home({ navigation }) {
                 )} 
                 />
             </View>
-            
-            <View style={globalStyles.container}>
-             <Text style={globalStyles.paragraph}>{text}</Text>
-            </View>
 
+     
             <AntDesign name='pluscircle'
                 style={globalStyles.modalToggle}
                 name='pluscircle'
                 size={32}
-                onPress={() => setModalOpen(true)}
+                onPress={() => isNull(location) ? alert("Wait for location data to be gathered") : setModalOpen(true)}
             />
         </View>
     </View>

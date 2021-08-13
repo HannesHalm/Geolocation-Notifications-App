@@ -9,17 +9,22 @@ export const globalStyles = StyleSheet.create({
         //justifyContent: 'center',
       }, 
       titleText: {
-          //fontFamily: 'helvetica',
+          fontWeight: 'bold',
           fontSize: 18,
           color: '#333',
           padding: 8,
       },
       paragraph: {
-          //fontFamily: 'helvetica',
-          marginVertical: 8,
-          lineHeight: 20,
-          padding: 8,
+          marginHorizontal: 10,
+          lineHeight: 10,
+          padding: 6,
       },
+      subtitle: {
+
+        marginHorizontal: 4,
+        lineHeight: 10,
+        padding: 6,
+    },
       input: {
         padding: 8,
         marginBottom: 10,

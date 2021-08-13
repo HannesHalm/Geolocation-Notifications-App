@@ -22,11 +22,11 @@ export default function AddReminder({ addReminder, location }) {
     return (
         <View style={globalStyles.container}>
             <Formik
-                initialValues={{ name: '', info: '', latitude: 0, longitude:  0, radius: '10'}}
+                initialValues={{ name: '', info: '', exitinfo: '', latitude: 0, longitude:  0, radius: '10'}}
                 onSubmit={(values, actions) => {
                     actions.resetForm();
                     addReminder(values);
-                    console.log(JSON.stringify(location));
+                    console.log("Ny reminder", values.name);
                     
                 }}
             >
@@ -42,10 +42,19 @@ export default function AddReminder({ addReminder, location }) {
                         <TextInput 
                             style={globalStyles.input}
                             multiline={true}
-                            numberOfLines={4}
-                            placeholder='Reminder Info'
+                            numberOfLines={3}
+                            placeholder='Reminder On Entry'
                             onChangeText={props.handleChange('info')}
                             value={props.values.info}
+                        />
+
+                        <TextInput 
+                            style={globalStyles.input}
+                            multiline={true}
+                            numberOfLines={3}
+                            placeholder='Reminder On Exit'
+                            onChangeText={props.handleChange('exitinfo')}
+                            value={props.values.exitinfo}
                         />
 
                         <TextInput 
@@ -78,7 +87,7 @@ export default function AddReminder({ addReminder, location }) {
                                     longitude: marker.longitude,
                                 }}
                                 // If field empty set radius to 0
-                                radius={isNaN(parseInt(props.values.radius)) ? 0 : parseInt(props.values.radius)}
+                                radius={isNaN(parseInt(props.values.radius)) ? 6 : parseInt(props.values.radius)}
                                 strokeWidth = { 1 }
                                 strokeColor = { '#1a66ff' }             
                                 fillColor = { 'rgba(230,238,255,0.5)' }

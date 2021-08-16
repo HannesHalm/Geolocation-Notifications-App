@@ -104,6 +104,10 @@ export default function Home({ navigation }) {
     })();
   }, []);
   
+  React.useEffect(() => {
+    initalizeGeofence();
+  }, [reminders]);
+
   const initalizeGeofence = async () => {
     try {
       await Location.startGeofencingAsync(GEOFENCING_TASK_NAME, 
@@ -180,7 +184,7 @@ export default function Home({ navigation }) {
     // Start geofence with new reminder
 
     setModalOpen(false);
-    initalizeGeofence();  
+  
   }
 
   // Navigate to individual reminder screen
